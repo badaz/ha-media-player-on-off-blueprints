@@ -1,0 +1,75 @@
+blueprint:
+  name: Sync media player on / off switch
+  description: Syncs an input boolean entity with the on / off state of a media player entity
+  domain: automation
+  input:
+    media_player:
+      name: Media Player
+      description: The media player entity to sync the input boolean with
+      selector:
+        entity:
+          filter:
+            - domain: media_player
+    input_boolean:
+      name: Input Boolean
+      description: The input boolean entity to sync with the media player
+      selector:
+        entity:
+          filter:
+            - domain: input_boolean
+
+triggers:
+  - trigger: state
+    entity_id:
+      - !input media_player
+    from: null
+    to: null
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input media_player
+                state: "on"
+              - condition: state
+                entity_id: !input media_player
+                state: playing
+              - condition: state
+                entity_id: !input media_player
+                state: paused
+              - condition: state
+                entity_id: !input media_player
+                state: idle
+              - condition: state
+                entity_id: !input media_player
+                state: buffering
+        sequence:
+          - action: input_boolean.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: !input input_boolean
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: !input media_player
+                state: standby
+              - condition: state
+                entity_id: !input media_player
+                state: "off"
+              - condition: state
+                entity_id: !input media_player
+                state: unavailable
+              - condition: state
+                entity_id: !input media_player
+                state: unknown
+        sequence:
+          - action: input_boolean.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: !input input_boolean
+mode: single

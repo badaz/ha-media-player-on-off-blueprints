@@ -1,0 +1,58 @@
+blueprint:
+  name: Control media player on / off with switch
+  description: Controls a media player entity on / off state with an input boolean entity
+  domain: automation
+  input:
+    media_player:
+      name: Media Player
+      description: The media player entity to control
+      selector:
+        entity:
+          filter:
+            - domain: media_player
+    input_boolean:
+      name: Input Boolean
+      description: The input boolean entity to control the media player on / off state
+      selector:
+        entity:
+          filter:
+            - domain: input_boolean
+
+triggers:
+  - trigger: state
+    entity_id:
+      - !input input_boolean
+    from: null
+    to: null
+conditions:
+  - condition: or
+    conditions:
+      - condition: state
+        entity_id: !input input_boolean
+        state: "on"
+      - condition: state
+        entity_id: !input input_boolean
+        state: "off"
+actions:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: !input input_boolean
+            state: "on"
+        sequence:
+          - action: media_player.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: !input media_player
+      - conditions:
+          - condition: state
+            entity_id: !input input_boolean
+            state: "off"
+        sequence:
+          - action: media_player.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: !input media_player
+mode: single
